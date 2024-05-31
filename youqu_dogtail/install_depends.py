@@ -1,10 +1,24 @@
 import os
 import sys
+import easyprocess
 
+from conf import conf
 
 def install_depends():
     os.environ['QT_ACCESSIBILITY'] = '1'
     os.environ['QT_LINUX_ACCESSIBILITY_ALWAYS_ON'] = '1'
+
+    for pkg in [
+        "gir1.2-atspi-2.0",
+        "libatk-adaptor",
+        "at-spi2-core",
+    ]:
+        check_installed: bool = easyprocess.EasyProcess(f"apt show {pkg}").call().stdout.startswith("Package:")
+        if not check_installed:
+            # TODO
+            # 调研是否能不带权限安装
+            easyprocess.EasyProcess(f"echo '{conf.PASSWORD}' | sudo -S apt install gir1.2-atspi-2.0").call()
+
     python_path = sys.executable
     site_packages_path = os.path.join(
         os.path.dirname(os.path.dirname(python_path)),
