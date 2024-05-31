@@ -6,6 +6,7 @@ authors = [
 ]
 dependencies = [
     "funnylog",
+    "easyprocess",
 ]
 dynamic = [
   "version",
@@ -20,5 +21,10 @@ build-backend = "hatchling.build"
 
 
 [tool.hatch]
-version = { path = "__version__.py" }
+version = { path = "youqu_dogtail/__version__.py" }
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "/youqu_dogtail",
+]
 
