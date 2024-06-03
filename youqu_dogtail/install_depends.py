@@ -2,7 +2,7 @@ import os
 import sys
 import easyprocess
 
-from conf import conf
+from youqu_dogtail.conf import conf
 
 def install_depends():
     os.environ['QT_ACCESSIBILITY'] = '1'
