@@ -422,6 +422,16 @@ class Node(object):
         except NotImplementedError:
             return None
 
+    @property
+    def center(self):
+        """
+        A tuple containing the center position of the Accessible:(x, y)
+        """
+        x, y, w, h = self.extents
+        centerX = x + w / 2
+        centerY = y + h / 2
+        return centerX, centerY
+
     def contains(self, x, y):
         try:
             return self.queryComponent().contains(x, y, pyatspi.DESKTOP_COORDS)

@@ -56,13 +56,17 @@ class ApplicationStartError(BaseException):
 
 
 class DogtailUtils():
-    """
-    通过属性进行元素定位和操作。
-    """
 
     __author__ = "mikigo<huangmingqiang@uniontech.com>"
 
-    def __init__(self, name=None, description=None, number=-1, check_start=True, key: dict = None):
+    def __init__(
+            self,
+            name=None,
+            description=None,
+            number=-1,
+            check_start=True,
+            key: dict = None
+    ):
         config.logDebugToStdOut = False
         self.name = name
         self.description = description
@@ -80,7 +84,7 @@ class DogtailUtils():
                 logger.error(search_app)
                 raise ApplicationStartError(self.name) from SearchError
 
-    def app_element(self, *args, **kwargs) -> Node:
+    def ele(self, *args, **kwargs) -> Node:
         """
          获取app元素的对象
         :return: 元素的对象
@@ -92,33 +96,14 @@ class DogtailUtils():
         except SearchError:
             raise ElementNotFound(*args, **kwargs) from SearchError
 
-    def left_upper_corner_position(self, element) -> tuple:
-        """
-         获取元素左上角的坐标
-        :param element: 元素名称
-        :return: 元素左上角坐标
-        """
-        position = self.app_element(element).position
-        logger.debug(f"获取元素 {element}元素左上角坐标 {position}")
-        return position
-
-    def element_size(self, *args, **kwargs) -> tuple:
-        """
-         获取元素的大小
-        :return: 元素大小
-        """
-        size = self.app_element(*args, **kwargs).size
-        logger.debug(f"元素{args, kwargs} 的大小 {size}")
-        return size
-
     def right_upper_corner_position(self, element) -> tuple:
         """
          获取元素右上角的坐标
         :param element: 元素名称
         :return: 元素右上角坐标
         """
-        _x = self.left_upper_corner_position(element)[0] + self.element_size(element)[0]
-        _y = self.left_upper_corner_position(element)[1]
+        _x = self.ele(element).position[0] + self.ele(element).size[0]
+        _y = self.ele(element).position[1]
         logger.debug(f"获取元素 {element}, 右上角坐标 ({_x, _y})")
         return int(_x), int(_y)
 
@@ -128,43 +113,11 @@ class DogtailUtils():
         :param element:
         :return: 元素中心坐标
         """
-        _x, _y, _w, _h = self.app_element(element).extents
+        _x, _y, _w, _h = self.ele(element).extents
         _x = _x + _w / 2
         _y = _y + _h / 2
         logger.debug(f"获取元素中心坐标 ({_x, _y})")
         return _x, _y
-
-    # def element_click(self, element, button=1):
-    #     """
-    #      元素点击
-    #     :param element: 应用的元素
-    #     :param button: 1>left,2>middle,3>right
-    #     :return: None
-    #     """
-    #     logger.debug(
-    #         f"""{"左键" if button == 1 else f"{'右键' if button == 3 else '鼠标中健'}"} 点击元素 {element}"""
-    #     )
-    #     mouse_click = (
-    #         self.click if button == 1 else self.right_click if button == 3 else self.middle_click
-    #     )
-    #     mouse_click(*self.element_center(element))
-    #
-    # def element_double_click(self, element):
-    #     """
-    #      元素双击
-    #     :return: None
-    #     """
-    #     logger.debug(f"双击元素 {element}")
-    #     self.double_click(*self.element_center(element))
-    #
-    # def element_point(self, element):
-    #     """
-    #      鼠标移动到元素上（位置是在元素的中心）
-    #     :param element: 应用的元素
-    #     :return: None
-    #     """
-    #     logger.debug(f"鼠标移至元素 {element} 中心")
-    #     self.move_to(*self.element_center(element))
 
     @staticmethod
     def __evalx(expr, element, recursive):
@@ -200,7 +153,7 @@ class DogtailUtils():
             raise ElementNotFound(expr) from SearchError
         return result
 
-    def find_elements_by_attr(self, expr) -> Union[list, bool]:
+    def eles_expr(self, expr) -> Union[list, bool]:
         """
          通过层级获取元素
         :param expr: 元素定位 $/xx.xxx//xxx,  $根节点  /当前子节点， //递归查找子节点
@@ -217,14 +170,14 @@ class DogtailUtils():
         logger.debug(f"元素 {result}")
         return result
 
-    def find_element_by_attr(self, expr, index=0) -> Node:
+    def ele_expr(self, expr, index=0) -> Node:
         """
          查找界面元素
         :param expr: 匹配格式 元素定位 $/xxx//xxx,  $根节点  /当前子节点， //递归查找子节点
         :param index: 匹配结果索引
         :return: 元素对象
         """
-        elements = self.find_elements_by_attr(expr)
+        elements = self.eles_expr(expr)
         if not elements:
             raise ElementNotFound(expr)
         try:
@@ -232,12 +185,12 @@ class DogtailUtils():
         except IndexError:
             raise ElementNotFound(f"{expr}, index:{index}") from IndexError
 
-    def find_element_by_attr_and_click(self, expr, index=0):
-        self.find_element_by_attr(expr, index).click()
+    def click_ele_expr(self, expr, index=0):
+        self.ele_expr(expr, index).click()
 
-    def find_element_by_attr_and_right_click(self, expr, index=0):
-        self.find_element_by_attr(expr, index).click(3)
+    def right_click_ele_expr(self, expr, index=0):
+        self.ele_expr(expr, index).click(3)
 
 
 if __name__ == '__main__':
-    dog = DogtailUtils().app_element("Btn_文件管理器").click()
+    dog = DogtailUtils().ele("Btn_文件管理器").click()
