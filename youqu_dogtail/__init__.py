@@ -27,7 +27,7 @@ config.logDebugToFile = False
 config.searchCutoffCount = 2
 
 
-class ElementNotFound(BaseException):
+class ElementNotFound(Exception):
     """未找到元素"""
 
     def __init__(self, name):
@@ -37,10 +37,10 @@ class ElementNotFound(BaseException):
         """
         err = f"====未找到“{name}”元素！===="
         logger.error(err)
-        BaseException.__init__(self, err)
+        Exception.__init__(self, err)
 
 
-class ApplicationStartError(BaseException):
+class ApplicationStartError(Exception):
     """
     应用程序未启动
     """
@@ -52,7 +52,7 @@ class ApplicationStartError(BaseException):
         """
         err = f"应用程序未启动,{result}"
         logger.error(err)
-        BaseException.__init__(self, err)
+        Exception.__init__(self, err)
 
 
 class DogtailUtils():
@@ -61,18 +61,16 @@ class DogtailUtils():
 
     def __init__(
             self,
-            name=None,
-            description=None,
+            appname=None,
             number=-1,
             check_start=True,
             key: dict = None
     ):
         config.logDebugToStdOut = False
-        self.name = name
-        self.description = description
+        self.appname = appname
         try:
-            if name:
-                self.obj = root.application(self.name, self.description)
+            if appname:
+                self.obj = root.application(self.appname)
             else:
                 self.obj = root
             if number > 0:
@@ -80,13 +78,13 @@ class DogtailUtils():
 
         except SearchError:
             if check_start:
-                search_app = easyprocess.EasyProcess(f"ps -ef | grep {self.name}").call().stdout
+                search_app = easyprocess.EasyProcess(f"ps -ef | grep {self.appname}").call().stdout
                 logger.error(search_app)
-                raise ApplicationStartError(self.name) from SearchError
+                raise ApplicationStartError(self.appname) from SearchError
 
     def ele(self, *args, **kwargs) -> Node:
         """
-         获取app元素的对象
+        获取app元素的对象
         :return: 元素的对象
         """
         try:
@@ -96,32 +94,8 @@ class DogtailUtils():
         except SearchError:
             raise ElementNotFound(*args, **kwargs) from SearchError
 
-    def right_upper_corner_position(self, element) -> tuple:
-        """
-         获取元素右上角的坐标
-        :param element: 元素名称
-        :return: 元素右上角坐标
-        """
-        _x = self.ele(element).position[0] + self.ele(element).size[0]
-        _y = self.ele(element).position[1]
-        logger.debug(f"获取元素 {element}, 右上角坐标 ({_x, _y})")
-        return int(_x), int(_y)
-
-    def element_center(self, element) -> tuple:
-        """
-         获取元素的中心位置
-        :param element:
-        :return: 元素中心坐标
-        """
-        _x, _y, _w, _h = self.ele(element).extents
-        _x = _x + _w / 2
-        _y = _y + _h / 2
-        logger.debug(f"获取元素中心坐标 ({_x, _y})")
-        return _x, _y
-
     @staticmethod
     def __evalx(expr, element, recursive):
-        """evalx"""
         node = re.match(".*?[^\\\\]/", expr)
         if node:
             name = node.group().replace("\\/", "/")[:-1]
@@ -154,11 +128,6 @@ class DogtailUtils():
         return result
 
     def eles_expr(self, expr) -> Union[list, bool]:
-        """
-         通过层级获取元素
-        :param expr: 元素定位 $/xx.xxx//xxx,  $根节点  /当前子节点， //递归查找子节点
-        :return: 元素对象
-        """
         logger.debug(f"查找元素 expr={expr}")
         if expr == "$":
             return self.obj if isinstance(self.obj, list) else [self.obj]
