@@ -1,6 +1,5 @@
 import os
 import sys
-import easyprocess
 
 from youqu_dogtail.conf import conf
 
@@ -13,11 +12,11 @@ def install_depends():
         "libatk-adaptor",
         "at-spi2-core",
     ]:
-        check_installed: bool = easyprocess.EasyProcess(f"apt show {pkg}").call().stdout.startswith("Package:")
+        check_installed: bool = os.popen(f"apt show {pkg}").read().strip().startswith("Package:")
         if not check_installed:
             # TODO
             # 调研是否能不带权限安装
-            easyprocess.EasyProcess(f"echo '{conf.PASSWORD}' | sudo -S apt install gir1.2-atspi-2.0").call()
+            os.system(f"echo '{conf.PASSWORD}' | sudo -S apt install {pkg}")
 
     python_path = sys.executable
     site_packages_path = os.path.join(

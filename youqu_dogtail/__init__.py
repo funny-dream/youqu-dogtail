@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # _*_ coding:utf-8 _*_
-
+import os
 # SPDX-FileCopyrightText: 2023 UnionTech Software Technology Co., Ltd.
 
 # SPDX-License-Identifier: GPL-2.0-only
@@ -8,9 +8,7 @@
 import re
 from typing import Union
 
-import easyprocess
 from funnylog import logger
-
 from youqu_dogtail.install_depends import install_depends
 
 install_depends()
@@ -78,7 +76,7 @@ class DogtailUtils():
 
         except SearchError:
             if check_start:
-                search_app = easyprocess.EasyProcess(f"ps -ef | grep {self.appname}").call().stdout
+                search_app = os.popen(f"ps -ef | grep {self.appname}").read()
                 logger.error(search_app)
                 raise ApplicationStartError(self.appname) from SearchError
 
