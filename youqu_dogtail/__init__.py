@@ -152,12 +152,6 @@ class DogtailUtils():
         except IndexError:
             raise ElementNotFound(f"{expr}, index:{index}") from IndexError
 
-    def click_ele_expr(self, expr, index=0):
-        self.ele_expr(expr, index).click()
-
-    def right_click_ele_expr(self, expr, index=0):
-        self.ele_expr(expr, index).click(3)
-
 
 if __name__ == '__main__':
     dog = DogtailUtils().ele("Btn_文件管理器").click()

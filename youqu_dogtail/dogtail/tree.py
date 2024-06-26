@@ -475,6 +475,9 @@ class Node(object):
                        (str(self.name), self.getLogString(), str(clickX), str(clickY)))
         rawinput.click(clickX, clickY, button)
 
+    def right_click(self):
+        self.click(button=3)
+
     def doubleClick(self, button=1):
         """
         Generates a raw mouse double-click event, using the specified button.
@@ -485,6 +488,8 @@ class Node(object):
             logger.log(str("raw click on %s %s at (%s,%s)") %
                        (str(self.name), self.getLogString(), str(clickX), str(clickY)))
         rawinput.doubleClick(clickX, clickY, button)
+
+    double_click = doubleClick
 
     def point(self, mouseDelay=None):
         """
@@ -499,6 +504,8 @@ class Node(object):
             doDelay(mouseDelay)
         else:
             doDelay()
+
+    move_to = point
 
     #
     # RelationSet
